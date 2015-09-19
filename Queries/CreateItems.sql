@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS `dbShoppingList`.`tblItems` (
+  `intItemID` INT NOT NULL AUTO_INCREMENT COMMENT '',
+  `strItemName` VARCHAR(45) NOT NULL COMMENT '',
+  PRIMARY KEY (`intItemID`)  COMMENT '',
+  UNIQUE INDEX `intItemID_UNIQUE` (`intItemID` ASC)  COMMENT '')
+ENGINE = InnoDB;
