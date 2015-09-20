@@ -3,6 +3,7 @@ package co.shopping_list.shoppinglist;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,12 +18,75 @@ import android.widget.SimpleAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.net.*;
+import java.net.HttpURLConnection;
+import java.io.*;
+
+
 public class MainActivity extends Activity {
+    class MyTask extends AsyncTask<void,void,void> {
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+
+        @Override
+        protected void doInBackground(void... params) {
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(void aVoid) {
+
+        }
+
+    }
+
+
+
 
     final List<String> itemList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
+        //---------------------------------------------------------------
+        URL BaseURL = null;
+        try {
+            BaseURL= new URL("http://gcp-hackthenorth-3212.appspot.com/");
+            String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
+            String item = "true";
+            //String param2 = "value2";
+
+            String query = String.format("?item=%s",
+                //    URLEncoder.encode(param1, charset),
+                   URLEncoder.encode(item, charset));
+
+            URLConnection connection = BaseURL.openConnection();
+           // connection.setDoOutput(true); // Triggers POST.
+            connection.setRequestProperty("Accept-Charset", charset);
+           // connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
+
+            try (OutputStream output = connection.getOutputStream()) {
+                output.write(query.getBytes(charset));
+            }
+
+            InputStream response = connection.getInputStream();
+        }
+        catch(IOException e) {
+
+        }
+
+        //----------------------------------------------------------------
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
