@@ -2,56 +2,34 @@ package co.shopping_list.shoppinglist;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.DataSetObserver;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+
+
+import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import java.net.*;
-import java.net.HttpURLConnection;
-import java.io.*;
+import cz.msebera.android.httpclient.Header;
 
 
 public class MainActivity extends Activity {
-    class MyTask extends AsyncTask<void,void,void> {
-        @Override
-        protected void onPreExecute() {
-
-        }
+    private final String TAG = "MainActivity";
 
 
-        @Override
-        protected void doInBackground(void... params) {
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(void... values) {
-
-        }
-
-        @Override
-        protected void onPostExecute(void aVoid) {
-
-        }
-
-    }
-
-
-
-
-    final List<String> itemList = new ArrayList<>();
+    private final List<String> itemList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,31 +37,7 @@ public class MainActivity extends Activity {
 
 
         //---------------------------------------------------------------
-        URL BaseURL = null;
-        try {
-            BaseURL= new URL("http://gcp-hackthenorth-3212.appspot.com/");
-            String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
-            String item = "true";
-            //String param2 = "value2";
 
-            String query = String.format("?item=%s",
-                //    URLEncoder.encode(param1, charset),
-                   URLEncoder.encode(item, charset));
-
-            URLConnection connection = BaseURL.openConnection();
-           // connection.setDoOutput(true); // Triggers POST.
-            connection.setRequestProperty("Accept-Charset", charset);
-           // connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
-
-            try (OutputStream output = connection.getOutputStream()) {
-                output.write(query.getBytes(charset));
-            }
-
-            InputStream response = connection.getInputStream();
-        }
-        catch(IOException e) {
-
-        }
 
         //----------------------------------------------------------------
 
@@ -92,22 +46,55 @@ public class MainActivity extends Activity {
 
         final ShoppingAdapter itemAdapter = new ShoppingAdapter(itemList, this);
 
+        AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.autoCompleteTextView);
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
+        new GetGroceriesTask(adapter).execute((Void[]) null);
+
+        autoCompleteTextView.setAdapter(adapter);
+
         findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String url = "http://gcp-hackthenorth-3212.appspot.com";
+
+                Gson gson = new Gson();
+                String json = gson.toJson(itemList);
+                // Add post variables here
+                RequestParams params = new RequestParams();
+                params.add("list", json);
+
+                AsyncHttpClient client = new AsyncHttpClient();
+                client.post(url, params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        new GetLocationAndPricesTask(adapter2).execute((Void[]) null);
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                    }
+                });
+
                 Intent activityTwo = new Intent(MainActivity.this, SecondActivity.class);
                 startActivity(activityTwo);
             }
         });
-        final EditText userEnter = (EditText) findViewById(R.id.editText);
+        final EditText userEnter = (EditText) findViewById(R.id.autoCompleteTextView);
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 String text = userEnter.getText().toString();
                 itemList.add(text);
                 itemAdapter.notifyDataSetChanged();
+                userEnter.setText(null);
             }
         });
+
 
         ListView itemListView = (ListView) findViewById(R.id.listView);
         itemListView.setAdapter(itemAdapter);
@@ -115,8 +102,33 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String itemThatWasClicked = itemList.get(position);
-            }
+                    /*String url = "http://gcp-hackthenorth-3212.appspot.com";
+
+                    Gson gson = new Gson();
+                    String json = gson.toJson(itemList);
+
+                    // Add post variables here
+                    RequestParams params = new RequestParams();
+                    params.add("list", json);
+
+                    AsyncHttpClient client = new AsyncHttpClient();
+                    client.post(url, params, new AsyncHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                            new GetFinalListTask(adapter).execute((Void[]) null);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                        }
+                    });
+
+                    Intent activityTwo = new Intent(MainActivity.this, SecondActivity.class);
+                    startActivity(activityTwo);*/
+                }
         });
+
     }
 
     @Override

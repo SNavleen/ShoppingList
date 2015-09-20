@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "co.shopping_list.shoppinglist"
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -20,5 +20,7 @@ android {
 }
 
 dependencies {
+    compile 'com.google.code.gson:gson:2.3'
+    compile 'com.loopj.android:android-async-http:1.4.9'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
