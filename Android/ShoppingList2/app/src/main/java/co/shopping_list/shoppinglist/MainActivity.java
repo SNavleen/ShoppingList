@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
         AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.autoCompleteTextView);
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-        final ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
 
         new GetGroceriesTask(adapter).execute((Void[]) null);
 
@@ -70,7 +70,21 @@ public class MainActivity extends Activity {
                 client.post(url, params, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                        new GetLocationAndPricesTask(adapter2).execute((Void[]) null);
+
+                        String s = "";
+
+                        try {
+                            s = new String(responseBody, "US-ASCII");
+                        }
+                        catch (Exception e) {
+
+                        }
+
+                        Log.d("Test", "Response body " + s);
+                        Intent activityTwo = new Intent(MainActivity.this, SecondActivity.class);
+                        activityTwo.putExtra("data", s);
+
+                        startActivity(activityTwo);
                     }
 
                     @Override
@@ -79,8 +93,6 @@ public class MainActivity extends Activity {
                     }
                 });
 
-                Intent activityTwo = new Intent(MainActivity.this, SecondActivity.class);
-                startActivity(activityTwo);
             }
         });
         final EditText userEnter = (EditText) findViewById(R.id.autoCompleteTextView);

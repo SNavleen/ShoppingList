@@ -35,7 +35,11 @@ class GetLocationAndPricesTask extends AsyncTask<Void, Void, String[]> {
             InputStream strJsonResponse = connection.getInputStream();
             Scanner scanner = new Scanner(strJsonResponse).useDelimiter("\\A");
 
+
             json = scanner.next();
+
+
+            Log.d("respond" , json);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,6 +56,7 @@ class GetLocationAndPricesTask extends AsyncTask<Void, Void, String[]> {
     protected void onPostExecute(String[] strings) {
         mAdapter.clear();
         mAdapter.addAll(strings);
+        Log.d("Async task", "" + strings.length);
     }
 
 }
