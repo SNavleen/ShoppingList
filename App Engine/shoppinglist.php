@@ -4,16 +4,16 @@ session_start();
 class ShoppingList{
 
 	private $_csvFile;
-	private $_arrStoreTotalInfo;
-	private $_arrFinalDisplay;
+	private $_arrStoreTotalInfo = array();
+	private $_arrFinalDisplay = array();
 	// private array(
 	// 	"strStoreName" => array("strStoreName"=>,"strLocation"=>"put location here","totalPrice"=>"put price variable here"),
 	// 	);
 
 	private function SQLConnect(){
 		$Connenct = mysql_connect(
-			//':/cloudsql/gcp-hackthenorth-3212:shoppinglist',
-			'173.194.106.13:3306',
+			':/cloudsql/gcp-hackthenorth-3212:shoppinglist',
+			//'173.194.106.13:3306',
 			'hackthenorth',
 			'hackthenorth'
 		);	
@@ -90,43 +90,31 @@ class ShoppingList{
 		return $arrResult;
 	}
 
-	function setStoreTotals($arrList){
+	function setStoreTotals($arrList = null){
 		$this->SQLConnect();
-		$strSQL = "SELECT strStoreName strItemName, SUM(douPrice), strLocation, strSymbol
+		//var_dump($arrList);
+		//$test = print_r($arrList);
+		//error_log($arrList);
+		$arrList = str_replace('"',"'",$arrList);
+		$arrList = str_replace('[',"(",$arrList);
+		$arrList = str_replace(']',")",$arrList);
+		$strSQL = "SELECT strStoreName strItemName, SUM(douPrice) AS doublePrice, strLocation, strSymbol
 					FROM dbShoppingList.tblShoppingList
 					LEFT JOIN dbShoppingList.tblItems
 					USING (intItemID) 
-					WHERE strItemName IN (". $arrList .")
-					GROUP BY strStoreName";		
+					WHERE strItemName IN ". $arrList .
+					" GROUP BY strStoreName";		
 
+		error_log($strSQL);			
 		$result = mysql_query($strSQL);
 		$arrResult = array();
 		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
 		    $arrResult[] = $row;
 		}
+		error_log($arrResult);	
 		$this->_arrStoreTotalInfo = $arrResult;
-	}
-
-	function getStoreTotals(){
 		return json_encode($this->_arrStoreTotalInfo);
 	}
-
-	/*private function SelectShoppingList($arrList, $strStoreName){
-		$this->SQLConnect();
-		$strSQL = "SELECT strItemName, SUM(intPrice), strLocation, strSymbol
-					FROM dbShoppingList.tblShoppingList
-					LEFT JOIN dbShoppingList.tblItems
-					USING (intItemID) 
-					WHERE strItemName IN (". $arrList .")
-					AND strStoreName = ". $strStoreName;		
-
-		$result = mysql_query($strSQL);
-		$arrResult = array();
-		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
-		    $arrResult[] = $row;
-		}
-		return $arrResult;
-	}*/
 
 	function InsertStartingInfo(){
 		$this->InsertItems();
@@ -151,20 +139,9 @@ class ShoppingList{
 		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
 		    $arrResult[] = $row;
 		}
-		$this->_arrFinalDisplay = $arrResult;		
+		$this->_arrFinalDisplay = $arrResult;	
+		return json_encode($this->_arrFinalDisplay);	
 	}
-
-	function getFinalDisplay(){
-		return json_encode($this->_arrFinalDisplay);
-	}
-
-	/*function setStoreTotals($arrList){
-		$arrStoreName = $this->SelectStoreName();
-		foreach ($arrStoreName as $strStoreName){
-			$arrShoppingList[$arrStoreName] = $this->SelectShoppingList($arrList, $strStoreName);
-		}
-		//foreach ($arrShopping["fltPrice"])
-	}*/
 }
 
 ?>
