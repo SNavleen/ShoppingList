@@ -42,8 +42,8 @@ public class ShoppingAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = mInflater.inflate(R.layout.shopping_item_cell, parent, false);
-        TextView textView = (TextView) view.findViewById(R.id.textView2);
+        View view = mInflater.inflate(R.layout.shopping_item_cell_single, parent, false);
+        TextView textView = (TextView) view.findViewById(R.id.singleCell);
         textView.setText(mData.get(position));
         return view;
     }
